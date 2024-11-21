@@ -1,10 +1,28 @@
 import { setCookie, getCookie } from './cookie';
-import { TIngredient, TOrder, TOrdersData, TUser } from './types';
+import { TIngredient, TOrder, TUser } from './types';
 
 const URL = process.env.BURGER_API_URL;
 
-const checkResponse = <T>(res: Response): Promise<T> =>
-  res.ok ? res.json() : res.json().then((err) => Promise.reject(err));
+if (!URL) {
+  throw new Error(
+    'BURGER_API_URL is not defined. Check your environment variables.'
+  );
+}
+
+const checkResponse = async <T>(res: Response): Promise<T> => {
+  try {
+    if (res.ok) {
+      return await res.json();
+    }
+    const errorDetails = await res.text();
+    throw new Error(
+      `HTTP Error ${res.status}: ${errorDetails || 'No additional information'}`
+    );
+  } catch (err) {
+    console.error('Error parsing response:', err);
+    throw new Error('Ошибка при обработке ответа сервера.');
+  }
+};
 
 type TServerResponse<T> = {
   success: boolean;
@@ -61,7 +79,7 @@ type TIngredientsResponse = TServerResponse<{
   data: TIngredient[];
 }>;
 
-type TFeedsResponse = TServerResponse<{
+export type TFeedsResponse = TServerResponse<{
   orders: TOrder[];
   total: number;
   totalToday: number;
