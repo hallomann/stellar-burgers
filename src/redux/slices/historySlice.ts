@@ -1,7 +1,6 @@
 import { getFeedsApi, getOrdersApi, TFeedsResponse } from '@api';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TOrder } from '@utils-types';
-import { v4 as uuidv4 } from 'uuid';
 
 type THistoryState = {
   isLoading: boolean;
@@ -27,30 +26,11 @@ const slice = createSlice({
   name: 'history',
   initialState,
   reducers: {
-    addGlobalFeed: {
-      reducer: (state, { payload }: PayloadAction<TFeedsResponse>) => {
-        state.feeds = payload;
-      },
-      prepare: (response: TFeedsResponse) => ({
-        payload: {
-          ...response,
-          orders: response.orders.map((item) => {
-            item.uniqueId = uuidv4();
-            return item;
-          })
-        }
-      })
+    addGlobalFeed: (state, { payload }: PayloadAction<TFeedsResponse>) => {
+      state.feeds = payload;
     },
-    addUserFeeds: {
-      reducer: (state, { payload }: PayloadAction<TOrder[]>) => {
-        state.history = payload;
-      },
-      prepare: (items: TOrder[]) => ({
-        payload: items.map((item) => {
-          item.uniqueId = uuidv4();
-          return item;
-        })
-      })
+    addUserFeeds: (state, { payload }: PayloadAction<TOrder[]>) => {
+      state.history = payload;
     }
   },
   selectors: {

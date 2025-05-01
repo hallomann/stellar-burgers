@@ -19,13 +19,8 @@ const slice = createSlice({
   name: 'order',
   initialState,
   reducers: {
-    setOrderData: {
-      reducer: (state, { payload }: PayloadAction<TOrder>) => {
-        state.orderData = payload;
-      },
-      prepare: (item: TOrder) => ({
-        payload: { ...item, uniqueId: uuidv4() }
-      })
+    setOrderData: (state, { payload }: PayloadAction<TOrder>) => {
+      state.orderData = payload;
     },
     clearOrderData: (state) => {
       state.orderData = null;

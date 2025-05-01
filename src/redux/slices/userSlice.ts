@@ -123,34 +123,19 @@ const slice = createSlice({
   }
 });
 
-export const fetchLogin = createAsyncThunk(
-  'user/login',
-  async (data: TLoginData) => await loginUserApi(data)
-);
+export const fetchLogin = createAsyncThunk('user/login', loginUserApi);
 
-export const fetchUpdateUser = createAsyncThunk(
-  'user/update',
-  async (data: TRegisterData) => await updateUserApi(data)
-);
+export const fetchUpdateUser = createAsyncThunk('user/update', updateUserApi);
 
-export const fetchLogout = createAsyncThunk(
-  'user/logaut',
-  async () => await logoutApi()
-);
+export const fetchLogout = createAsyncThunk('user/logaut', logoutApi);
 
-export const fetchRegister = createAsyncThunk(
-  'user/register',
-  async (data: TRegisterData) => await registerUserApi(data)
-);
+export const fetchRegister = createAsyncThunk('user/register', registerUserApi);
 
-export const fetchUserCheck = createAsyncThunk(
-  'user/check',
-  async () => await getUserApi()
-);
+export const fetchUserCheck = createAsyncThunk('user/check', getUserApi);
 
 export const fetchRefreshTocken = createAsyncThunk(
   'user/refresh',
-  async () => await refreshToken()
+  refreshToken
 );
 
 export const {} = slice.actions;

@@ -1,8 +1,7 @@
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
 import { LoginUI } from '@ui-pages';
-import { useDispatch } from '../../redux/store';
+import { useDispatch, useSelector } from '../../redux/store';
 import { fetchLogin, getError } from '../../redux/slices/userSlice';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 export const Login: FC = () => {
@@ -18,8 +17,7 @@ export const Login: FC = () => {
       .unwrap()
       .then(() => {
         navigate('/', { replace: true });
-      })
-      .catch();
+      });
   };
 
   return (
