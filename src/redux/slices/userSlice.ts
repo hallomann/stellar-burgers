@@ -138,6 +138,18 @@ export const fetchRefreshTocken = createAsyncThunk(
   refreshToken
 );
 
+export const logout = createAsyncThunk(
+  'user/logout',
+  async (_, { dispatch }) => {
+    try {
+      await dispatch(fetchLogout()).unwrap(); // ваш текущий thunk
+      return;
+    } catch (error) {
+      return;
+    }
+  }
+);
+
 export const {} = slice.actions;
 export const { getIsAuth, getUser, getError } = slice.selectors;
 export default slice.reducer;

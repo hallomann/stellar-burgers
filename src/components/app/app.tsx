@@ -18,7 +18,8 @@ import { ProtectedRoute } from '../protected-route/ProtectedRoute';
 import {
   fetchRefreshTocken,
   fetchUserCheck,
-  getIsAuth
+  getIsAuth,
+  logout
 } from '../../redux/slices/userSlice';
 import { useDispatch, useSelector } from '../../redux/store';
 import { useEffect } from 'react';
@@ -43,14 +44,22 @@ const App = () => {
         dispatch(addIngredients(result));
       });
 
-    if (getCookie('accessToken') && !isAutch) {
-      try {
-        dispatch(fetchUserCheck())
-          .unwrap()
-          .then(() => dispatch(fetchRefreshTocken()));
-      } catch (error) {}
+    const token = getCookie('accessToken');
+    if (token && !isAutch) {
+      dispatch(fetchUserCheck())
+        .unwrap()
+        .catch(async () => {
+          try {
+            await dispatch(fetchRefreshTocken()).unwrap();
+            // После обновления токена пробуем снова получить данные пользователя
+            await dispatch(fetchUserCheck()).unwrap();
+          } catch (error) {
+            // refreshToken истёк или недействителен → очищаем всё и не делаем дальнейших попыток
+            dispatch(logout());
+          }
+        });
     }
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className={styles.app}>
@@ -62,7 +71,7 @@ const App = () => {
         <Route
           path='/login'
           element={
-            <ProtectedRoute onlyUnAuth={!isAutch}>
+            <ProtectedRoute onlyUnAuth>
               <Login />
             </ProtectedRoute>
           }
@@ -70,7 +79,7 @@ const App = () => {
         <Route
           path='/register'
           element={
-            <ProtectedRoute onlyUnAuth={!isAutch}>
+            <ProtectedRoute onlyUnAuth>
               <Register />
             </ProtectedRoute>
           }
@@ -78,7 +87,7 @@ const App = () => {
         <Route
           path='/forgot-password'
           element={
-            <ProtectedRoute onlyUnAuth={!isAutch}>
+            <ProtectedRoute onlyUnAuth>
               <ForgotPassword />
             </ProtectedRoute>
           }
@@ -86,7 +95,7 @@ const App = () => {
         <Route
           path='/reset-password'
           element={
-            <ProtectedRoute onlyUnAuth={!isAutch}>
+            <ProtectedRoute onlyUnAuth>
               <ResetPassword />
             </ProtectedRoute>
           }
@@ -94,7 +103,7 @@ const App = () => {
         <Route
           path='/profile'
           element={
-            <ProtectedRoute onlyUnAuth={isAutch}>
+            <ProtectedRoute>
               <Profile />
             </ProtectedRoute>
           }
@@ -102,7 +111,7 @@ const App = () => {
         <Route
           path='/profile/orders'
           element={
-            <ProtectedRoute onlyUnAuth={isAutch}>
+            <ProtectedRoute>
               <ProfileOrders />
             </ProtectedRoute>
           }
@@ -173,7 +182,7 @@ const App = () => {
           <Route
             path='/profile/orders/:number'
             element={
-              <ProtectedRoute onlyUnAuth={isAutch}>
+              <ProtectedRoute>
                 <Modal
                   title='Детали заказа'
                   onClose={() => navigate('/profile/orders')}
