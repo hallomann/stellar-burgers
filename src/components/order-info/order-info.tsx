@@ -10,6 +10,7 @@ import {
   setOrderData
 } from '../../redux/slices/orderSlice';
 import { getIngredients } from '../../redux/slices/ingredientsSlice';
+import { v4 as uuidv4 } from 'uuid';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams();
@@ -32,7 +33,7 @@ export const OrderInfo: FC = () => {
     const date = new Date(orderData.createdAt);
 
     type TIngredientsWithCount = {
-      [key: string]: TIngredient & { count: number };
+      [key: string]: TIngredient & { count: number; uniqueId: string };
     };
 
     const ingredientsInfo = orderData.ingredients.reduce(
@@ -42,7 +43,8 @@ export const OrderInfo: FC = () => {
           if (ingredient) {
             acc[item] = {
               ...ingredient,
-              count: 1
+              count: 1,
+              uniqueId: uuidv4()
             };
           }
         } else {

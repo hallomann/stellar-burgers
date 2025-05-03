@@ -16,15 +16,24 @@ const slice = createSlice({
   name: 'item',
   initialState,
   reducers: {
-    addIngredient(state, action: PayloadAction<{ ingredient: TIngredient }>) {
-      const newIngredient = {
-        ...action.payload.ingredient,
-        key: uuidv4()
-      };
-      if (newIngredient.type === 'bun') {
-        state.bun = newIngredient;
-      } else {
-        state.ingredients.push(newIngredient);
+    addIngredient: {
+      reducer(
+        state,
+        action: PayloadAction<TIngredient & { uniqueId: string }>
+      ) {
+        if (action.payload.type === 'bun') {
+          state.bun = action.payload;
+        } else {
+          state.ingredients.push(action.payload);
+        }
+      },
+      prepare(ingredient: TIngredient) {
+        return {
+          payload: {
+            ...ingredient,
+            uniqueId: uuidv4()
+          }
+        };
       }
     },
     setBun(state, action) {
@@ -36,9 +45,6 @@ const slice = createSlice({
     },
     setIngredients(state, action) {
       state.ingredients = action.payload;
-    },
-    setIngredient(state, action) {
-      state.ingredients = [...state.ingredients, action.payload];
     }
   },
   selectors: {
@@ -47,6 +53,6 @@ const slice = createSlice({
   }
 });
 
-export const { clear, setBun, setIngredients, setIngredient } = slice.actions;
+export const { clear, setBun, setIngredients, addIngredient } = slice.actions;
 export const { getBun, getIngredients } = slice.selectors;
 export default slice.reducer;
