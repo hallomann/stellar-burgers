@@ -51,10 +51,8 @@ const App = () => {
         .catch(async () => {
           try {
             await dispatch(fetchRefreshTocken()).unwrap();
-            // После обновления токена пробуем снова получить данные пользователя
             await dispatch(fetchUserCheck()).unwrap();
           } catch (error) {
-            // refreshToken истёк или недействителен → очищаем всё и не делаем дальнейших попыток
             dispatch(logout());
           }
         });
@@ -150,6 +148,19 @@ const App = () => {
             </div>
           }
         />
+        <Route
+          path='/profile/orders/:number'
+          element={
+            <ProtectedRoute onlyUnAuth={false}>
+              <Modal
+                title='Детали заказа'
+                onClose={() => navigate('/profile/orders')}
+              >
+                <OrderInfo />
+              </Modal>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
 
       {background && (
@@ -182,7 +193,7 @@ const App = () => {
           <Route
             path='/profile/orders/:number'
             element={
-              <ProtectedRoute>
+              <ProtectedRoute onlyUnAuth={false}>
                 <Modal
                   title='Детали заказа'
                   onClose={() => navigate('/profile/orders')}
