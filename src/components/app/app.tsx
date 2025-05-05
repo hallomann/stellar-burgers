@@ -151,13 +151,8 @@ const App = () => {
         <Route
           path='/profile/orders/:number'
           element={
-            <ProtectedRoute onlyUnAuth={false}>
-              <Modal
-                title='Детали заказа'
-                onClose={() => navigate('/profile/orders')}
-              >
-                <OrderInfo />
-              </Modal>
+            <ProtectedRoute>
+              <OrderInfo />
             </ProtectedRoute>
           }
         />
