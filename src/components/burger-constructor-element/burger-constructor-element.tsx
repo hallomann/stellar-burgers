@@ -1,11 +1,12 @@
 import { FC, memo } from 'react';
 import { BurgerConstructorElementUI } from '@ui';
 import { BurgerConstructorElementProps } from './type';
-import { useSelector, useDispatch } from '../../redux/store';
+import { useSelector } from '../../redux/store';
 import {
   getIngredients,
   setIngredients
-} from '../../redux/slices/constructorItemSlice';
+} from '../../redux/slices/constructors/constructorItemSlice';
+import { useDispatch } from 'react-redux';
 
 function move(list: Array<any>, from: number, to: number) {
   list.splice(to, 0, list.splice(from, 1)[0]);

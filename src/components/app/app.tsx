@@ -11,28 +11,24 @@ import {
 } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
-
 import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route/ProtectedRoute';
-import {
-  fetchRefreshTocken,
-  fetchUserCheck,
-  getIsAuth,
-  logout
-} from '../../redux/slices/userSlice';
 import { useDispatch, useSelector } from '../../redux/store';
 import { useEffect } from 'react';
-import {
-  fetchIngredients,
-  addIngredients
-} from '../../redux/slices/ingredientsSlice';
 import { getCookie } from '../../utils/cookie';
-import { clearOrderData } from '../../redux/slices/orderSlice';
+import { clearOrderData } from '../../redux/slices/orders/orderSlice';
+import { selectIsAuth } from '../../redux/slices/users/userSlice';
+import { fetchIngredients } from '../../redux/slices/ingredients/thunks';
+import { addIngredients } from '../../redux/slices/ingredients/ingredientsSlice';
+import {
+  fetchUserCheck,
+  fetchRefreshTocken
+} from '../../redux/slices/users/thunks';
 
 const App = () => {
   const navigate = useNavigate();
-  const isAutch = useSelector(getIsAuth);
+  const isAutch = useSelector(selectIsAuth);
   const location = useLocation();
   const background = location.state?.background;
   const dispatch = useDispatch();
@@ -44,20 +40,14 @@ const App = () => {
         dispatch(addIngredients(result));
       });
 
-    const token = getCookie('accessToken');
-    if (token && !isAutch) {
-      dispatch(fetchUserCheck())
-        .unwrap()
-        .catch(async () => {
-          try {
-            await dispatch(fetchRefreshTocken()).unwrap();
-            await dispatch(fetchUserCheck()).unwrap();
-          } catch (error) {
-            dispatch(logout());
-          }
-        });
+    if (getCookie('accessToken') && !isAutch) {
+      try {
+        dispatch(fetchUserCheck())
+          .unwrap()
+          .then(() => dispatch(fetchRefreshTocken()));
+      } catch (error) {}
     }
-  }, [dispatch]);
+  }, []);
 
   return (
     <div className={styles.app}>
@@ -69,7 +59,7 @@ const App = () => {
         <Route
           path='/login'
           element={
-            <ProtectedRoute onlyUnAuth>
+            <ProtectedRoute onlyUnAuth={!isAutch}>
               <Login />
             </ProtectedRoute>
           }
@@ -77,7 +67,7 @@ const App = () => {
         <Route
           path='/register'
           element={
-            <ProtectedRoute onlyUnAuth>
+            <ProtectedRoute onlyUnAuth={!isAutch}>
               <Register />
             </ProtectedRoute>
           }
@@ -85,7 +75,7 @@ const App = () => {
         <Route
           path='/forgot-password'
           element={
-            <ProtectedRoute onlyUnAuth>
+            <ProtectedRoute onlyUnAuth={!isAutch}>
               <ForgotPassword />
             </ProtectedRoute>
           }
@@ -93,7 +83,7 @@ const App = () => {
         <Route
           path='/reset-password'
           element={
-            <ProtectedRoute onlyUnAuth>
+            <ProtectedRoute onlyUnAuth={!isAutch}>
               <ResetPassword />
             </ProtectedRoute>
           }
@@ -101,7 +91,7 @@ const App = () => {
         <Route
           path='/profile'
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onlyUnAuth={isAutch}>
               <Profile />
             </ProtectedRoute>
           }
@@ -109,7 +99,7 @@ const App = () => {
         <Route
           path='/profile/orders'
           element={
-            <ProtectedRoute>
+            <ProtectedRoute onlyUnAuth={isAutch}>
               <ProfileOrders />
             </ProtectedRoute>
           }
@@ -148,14 +138,6 @@ const App = () => {
             </div>
           }
         />
-        <Route
-          path='/profile/orders/:number'
-          element={
-            <ProtectedRoute>
-              <OrderInfo />
-            </ProtectedRoute>
-          }
-        />
       </Routes>
 
       {background && (
@@ -188,7 +170,7 @@ const App = () => {
           <Route
             path='/profile/orders/:number'
             element={
-              <ProtectedRoute onlyUnAuth={false}>
+              <ProtectedRoute onlyUnAuth={isAutch}>
                 <Modal
                   title='Детали заказа'
                   onClose={() => navigate('/profile/orders')}
