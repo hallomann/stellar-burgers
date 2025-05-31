@@ -1,6 +1,7 @@
 import ingredients from '../fixtures/ingredients.json';
+import order from '../fixtures/order.json';
 
-describe('проверяем доступность приложения', function () {
+describe('Проверка доступности приложения', function () {
   beforeEach(() => {
     window.localStorage.setItem(
       'refreshToken',
@@ -21,7 +22,7 @@ describe('проверяем доступность приложения', funct
     cy.clearCookies();
   });
 
-  it('Добавление ингредиента из списка в конструктор.', function () {
+  it('Добавление ингредиента из списка в конструктор', function () {
     cy.get(`[data-cy="order-sum"]`).as('orderSum');
     cy.get('[data-cy="constructor-ingredients"]').as('constructorIngredients');
 
@@ -59,29 +60,62 @@ describe('проверяем доступность приложения', funct
   });
 
   it('Проверка корректной работы модального окна', function () {
-    cy.get(`[data-cy="${ingredients.data[0].name}"]`).click();
+    const ingredient = ingredients.data[0];
+
+    cy.contains(ingredient.name).click();
+
     cy.get('[data-cy="modal"]').as('modal');
     cy.get('@modal').should('exist');
-    cy.get('[data-cy="modal-close"]').click().get('@modal').should('not.exist');
+
+    cy.contains(ingredient.name).should('exist');
+
+    // Проверяем БЖУ
+    cy.contains(`Калории, ккал${ingredient.calories}`).should('exist');
+    cy.contains(`Белки, г${ingredient.proteins}`).should('exist');
+    cy.contains(`Жиры, г${ingredient.fat}`).should('exist');
+    cy.contains(`Углеводы, г${ingredient.carbohydrates}`).should('exist');
+
+    cy.get('[data-cy="modal-close"]').click();
+    cy.get('@modal').should('not.exist');
   });
 
-  it('Проверка корректной работы создание заказа', function () {
-    cy.get(`[data-cy="${ingredients.data[0].name}"]`)
+  it('Проверка корректной работы создания заказа', function () {
+    const bun = ingredients.data[0];
+    const sauce = ingredients.data[1];
+    const main = ingredients.data[2];
+
+    cy.get(`[data-cy="${bun.name}"]`)
+      .find('button')
       .contains('Добавить')
       .click();
-    cy.get(`[data-cy="${ingredients.data[1].name}"]`)
+
+    cy.get(`[data-cy="${main.name}"]`)
+      .find('button')
       .contains('Добавить')
       .click();
-    cy.get(`[data-cy="${ingredients.data[2].name}"]`)
+
+    cy.get(`[data-cy="${sauce.name}"]`)
+      .find('button')
       .contains('Добавить')
       .click();
-    cy.get('[data-cy="order-create"]').contains('Оформить заказ').click();
-    cy.get('[data-cy="modal"]')
-      .contains('Ваш заказ начали готовить')
-      .get('[data-cy="modal-close"]')
-      .click();
+
+    cy.contains('Оформить заказ').click();
+
+    cy.get('[data-cy="modal"]').should('exist');
+    cy.contains('Ваш заказ начали готовить').should('exist');
+    cy.contains(order.order.number.toString()).should('exist');
+
+    cy.get('[data-cy="modal-close"]').click();
+    cy.get('[data-cy="modal"]').should('not.exist');
+
+    cy.get('[data-cy="constructor-ingredients"]')
+      .contains(ingredients.data[0].name)
+      .should('not.exist');
     cy.get('[data-cy="constructor-ingredients"]')
       .contains(ingredients.data[1].name)
+      .should('not.exist');
+      cy.get('[data-cy="constructor-ingredients"]')
+      .contains(ingredients.data[2].name)
       .should('not.exist');
   });
 });
