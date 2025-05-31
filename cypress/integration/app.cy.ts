@@ -62,20 +62,22 @@ describe('Проверка доступности приложения', functio
   it('Проверка корректной работы модального окна', function () {
     const ingredient = ingredients.data[0];
 
+    cy.get('[data-cy="modal"]').should('not.exist');
+
     cy.contains(ingredient.name).click();
 
-    cy.get('[data-cy="modal"]').as('modal');
-    cy.get('@modal').should('exist');
+    cy.get('[data-cy="modal"]').as('modal').should('exist');
 
-    cy.contains(ingredient.name).should('exist');
+    cy.get('@modal').within(() => {
+      cy.contains(ingredient.name).should('exist');
+      cy.contains(`Калории, ккал${ingredient.calories}`).should('exist');
+      cy.contains(`Белки, г${ingredient.proteins}`).should('exist');
+      cy.contains(`Жиры, г${ingredient.fat}`).should('exist');
+      cy.contains(`Углеводы, г${ingredient.carbohydrates}`).should('exist');
 
-    // Проверяем БЖУ
-    cy.contains(`Калории, ккал${ingredient.calories}`).should('exist');
-    cy.contains(`Белки, г${ingredient.proteins}`).should('exist');
-    cy.contains(`Жиры, г${ingredient.fat}`).should('exist');
-    cy.contains(`Углеводы, г${ingredient.carbohydrates}`).should('exist');
+      cy.get('[data-cy="modal-close"]').click();
+    });
 
-    cy.get('[data-cy="modal-close"]').click();
     cy.get('@modal').should('not.exist');
   });
 
@@ -108,14 +110,10 @@ describe('Проверка доступности приложения', functio
     cy.get('[data-cy="modal-close"]').click();
     cy.get('[data-cy="modal"]').should('not.exist');
 
+    cy.get('[data-cy="constructor-bun"]').should('not.exist');
+
     cy.get('[data-cy="constructor-ingredients"]')
-      .contains(ingredients.data[0].name)
-      .should('not.exist');
-    cy.get('[data-cy="constructor-ingredients"]')
-      .contains(ingredients.data[1].name)
-      .should('not.exist');
-      cy.get('[data-cy="constructor-ingredients"]')
-      .contains(ingredients.data[2].name)
+      .find('.constructor-element')
       .should('not.exist');
   });
 });
