@@ -3,11 +3,10 @@ import slice, { initialState } from '../../constructorItemSlice';
 import { clear } from '../../constructorItemSlice';
 import data from '../ingridients.json';
 
-const initial = JSON.parse(JSON.stringify(initialState)) as typeof initialState;
+const initial = structuredClone(initialState);
 initial.ingredients = data;
 
-test('[ clear ] - Проверка редюссера.', () => {
+test('[clear] - Проверка редюссера: очистка ингредиентов', () => {
   const newState = slice(initial, clear());
-  const { ingredients } = newState;
-  expect(ingredients).toEqual([]);
+  expect(newState.ingredients).toEqual([]);
 });
