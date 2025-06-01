@@ -1,10 +1,11 @@
 import styles from './constructor-page.module.css';
+
 import { BurgerIngredients } from '../../components';
 import { BurgerConstructor } from '../../components';
 import { Preloader } from '../../components/ui';
 import { FC } from 'react';
 import { useSelector } from '../../redux/store';
-import { getLoading } from '../../redux/slices/ingredientsSlice';
+import { getLoading } from '../../redux/slices/ingredients/ingredientsSlice';
 
 export const ConstructorPage: FC = () => {
   const isIngredientsLoading = useSelector(getLoading);

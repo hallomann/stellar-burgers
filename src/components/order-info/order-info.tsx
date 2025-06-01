@@ -4,13 +4,12 @@ import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from '../../redux/store';
+import { getIngredients } from '../../redux/slices/ingredients/ingredientsSlice';
+import { fetchOrderId } from '../../redux/slices/orders/thunks';
 import {
-  fetchOrderId,
   getOrderData,
   setOrderData
-} from '../../redux/slices/orderSlice';
-import { getIngredients } from '../../redux/slices/ingredientsSlice';
-import { v4 as uuidv4 } from 'uuid';
+} from '../../redux/slices/orders/orderSlice';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams();
@@ -33,7 +32,7 @@ export const OrderInfo: FC = () => {
     const date = new Date(orderData.createdAt);
 
     type TIngredientsWithCount = {
-      [key: string]: TIngredient & { count: number; uniqueId: string };
+      [key: string]: TIngredient & { count: number };
     };
 
     const ingredientsInfo = orderData.ingredients.reduce(
@@ -43,8 +42,7 @@ export const OrderInfo: FC = () => {
           if (ingredient) {
             acc[item] = {
               ...ingredient,
-              count: 1,
-              uniqueId: uuidv4()
+              count: 1
             };
           }
         } else {
